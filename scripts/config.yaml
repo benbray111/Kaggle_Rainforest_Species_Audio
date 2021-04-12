@@ -1,0 +1,71 @@
+etl:
+  reprocess_audio: False
+  dev_mode: False
+  raw_data_file: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/train_tp.csv"
+  processed_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/pickled"
+  training_files_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/train"
+  test_files_list: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/sample_submission.csv" 
+  test_files_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/test"
+  train_test_split_method: "Simple"
+  random_state: 42
+  test_size: 0.2
+  #audio specific settings
+  SR: 48000
+  FRAME_SIZE: 2048
+  HOP_SIZE: 2048
+  WINDOW_SIZE: 2048
+  LENGTH_OF_SECTION: 6
+  #FMIN_mult: .95
+  #FMAX_mult: 1.05
+  #settings used for up to 4 optional data augmentations
+  aug_1_YN: True
+  aug_1_addnoise: .01
+  aug_1_timeshift: 0 
+  aug_1_pitchfactor: 0 
+  aug_1_speedfactor: 0
+  aug_2_YN: True
+  aug_2_addnoise: .001
+  aug_2_timeshift: .5 
+  aug_2_pitchfactor: 0 
+  aug_2_speedfactor: 0
+  aug_3_YN: True 
+  aug_3_addnoise: .001 
+  aug_3_timeshift: 0
+  aug_3_pitchfactor: 1
+  aug_3_speedfactor: 0 
+  aug_4_YN: True
+  aug_4_addnoise: .001
+  aug_4_timeshift: 0
+  aug_4_pitchfactor: 0
+  aug_4_speedfactor: .9
+  test_segment_overlap: False
+
+train:
+  train_test_split_method: "Simple"
+  processed_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/pickled" 
+  ensemble_model: "RandomForestClassifier"
+  #model_config: {n_estimators: 100, random_state: 42}
+  #model_config: {n_estimators: 100, random_state: 42}
+  model_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/model"
+  num_classes: 24
+  num_epochs: 25
+  optimizer: 'adam'
+  lr: .0005
+  neur: 128
+  dropout_rate: .2
+  batch_size: 16
+
+predict:
+  train_test_split_method: "Simple"
+  model_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/model"
+  processed_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/pickled" 
+  predicted_file: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/predict.csv"
+  export_result: True  
+  
+submission:
+  model_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/model"
+  processed_path: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/pickled" 
+  submission_template: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/sample_submission.csv"
+  submission_file: "C:/Users/bennn/OneDrive/Documents/Portfolio/Kaggle_Rainforest_Audio/data/results_for_submission.csv"
+  
+  
