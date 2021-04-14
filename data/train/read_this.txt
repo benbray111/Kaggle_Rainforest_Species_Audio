@@ -1,0 +1,4 @@
+The data used in this model can be downloaded from Kaggle. The .flac audio files that belong in this "train" directory can be found here:
+
+https://www.kaggle.com/c/rfcx-species-audio-detection/data?select=train
+
