@@ -5,7 +5,7 @@ The code in this repository was used for the [Rainforest Connection Species Audi
 
 Competitors were provided with audio samples of 24 different endangered species (birds and frogs). The challenge was to detect the presence of any of these species within a set of 60 second audio clips.
 
-To do this, I converted short clips of audio into images, and then used the same sort of technology used for image recognition to compare the songs to each other. When converted into images, each song becomes visually recognizable.
+Simply put, the approach I took was to convert short clips of audio into images. When converted into images, each song becomes visually recognizable. I then used the same sort of technology used for image recognition to compare the songs to each other. 
 
 More specifically...I converted the audio clips into Mel spectrograms. A [spectrogram](https://en.wikipedia.org/wiki/Spectrogram) is a visual representation of sound which shows the intensity of certain frequencies as they vary over time. A Mel spectrogram is a spectrogram that has been converted to the [Mel scale](https://en.wikipedia.org/wiki/Mel_scale). This scales the spectrogram so that the image provides more information about the range of frequencies that can be easily differentiated by the human ear. I then trained a [Convolutional Neural Net](https://en.wikipedia.org/wiki/Convolutional_neural_network) to classify the sounds.
 
