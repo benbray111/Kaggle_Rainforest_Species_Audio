@@ -13,20 +13,20 @@ More specifically...I converted the audio clips into Mel spectrograms. A [spectr
 
 The code provided contains several separate scripts which perform the following tasks:
 
-##### config.yaml:
+##### [config.yaml:](https://github.com/benbray111/Kaggle_Rainforest_Species_Audio/blob/main/scripts/config.yaml)
   * Contains the settings for all the subsequent scripts. Edit this file to make any changes to how you want the scripts to run.
-##### etl.py: 
+##### [etl.py:](https://github.com/benbray111/Kaggle_Rainforest_Species_Audio/blob/main/scripts/etl.py) 
   * Pre-processes the audio data into Mel spectrograms and saves them to disk. 
   * Optionally will create augmented data to use for training (adding noise, pitch shift, etc). 
   * Splits the training set provided by Kaggle into a training and test set.
-##### train.py:
+##### [train.py:](https://github.com/benbray111/Kaggle_Rainforest_Species_Audio/blob/main/scripts/train.py)
   * Trains a convolutional neural net and saves it to disk.
-##### predict.py:
+##### [predict.py:](https://github.com/benbray111/Kaggle_Rainforest_Species_Audio/blob/main/scripts/predict.py)
   * Using the saved CNN model, predicts values for the held-out test set (as defined by the etl.py script), evaluates performance, and returns accuracy and loss metrics.
-##### submission.py:
+##### [submission.py:](https://github.com/benbray111/Kaggle_Rainforest_Species_Audio/blob/main/scripts/submission.py)
   * Using the saved CNN model, predicts values for the final test set which will be used by Kaggle to evaluate our model's performance. Converts the results into the format needed for the competition submission file.
-##### utility.py:
-  Contains several helper functions, used for loading data and logging.
+##### [utility.py:](https://github.com/benbray111/Kaggle_Rainforest_Species_Audio/blob/main/scripts/utility.py)
+  * Contains several helper functions, used for loading data and logging.
 
 ### Running the Code
 
