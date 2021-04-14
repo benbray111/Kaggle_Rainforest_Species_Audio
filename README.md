@@ -16,7 +16,7 @@ The code provided contains several separate scripts which perform the following 
 ##### config.yaml:
   Contains the settings for all the subsequent scripts. Edit this file to make any changes to how you want the scripts to run.
 ##### etl.py: 
-  Pre-processes the audio data into Mel spectrograms and them to pickle files. 
+  Pre-processes the audio data into Mel spectrograms and saves them to disk. 
   Optionally will create augmented data to use for training (adding noise, pitch shift, etc). 
   Splits the training set provided by Kaggle into a training and test set.
 ##### train.py:
