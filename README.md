@@ -28,4 +28,6 @@ The code provided contains several separate scripts which perform the following 
 ##### utility.py:
   Contains several helper functions, used for loading data and logging.
 
+### Running the Code
+
 The scripts can be run within the same directory structure shown in the repo. The /data/train and /data/test folders must be populated with the .flac audio files from Kaggle. See text files in those folders for instructions on downloading the audio files. All other data needed is in the repo.
