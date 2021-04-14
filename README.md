@@ -20,7 +20,7 @@ The code provided contains several separate scripts which perform the following 
   Optionally will create augmented data to use for training (adding noise, pitch shift, etc). 
   Splits the training set provided by Kaggle into a training and test set.
 ##### train.py:
-  Trains an convolutional neural net and saves it to disk.
+  Trains a convolutional neural net and saves it to disk.
 ##### predict.py:
   Using the saved CNN model, predicts values for the held-out test set (as defined by the etl.py script), evaluates performance, and returns accuracy and loss metrics.
 ##### submission.py:
