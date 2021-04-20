@@ -1,3 +1,10 @@
+"""Pre-process data.
+
+Convert both train and test data from audio to spectrograms.
+Create a list breaking up training data into train/test sets.
+Pickle the data and save to disk.
+"""
+
 import os
 import pickle
 import click
@@ -12,6 +19,7 @@ from utility import parse_config, set_logger
 @click.argument("config_file", type=str, default="config.yaml")
 
 def etl(config_file):
+
 
     ##################
     # configure logger
@@ -36,26 +44,26 @@ def etl(config_file):
     train_test_split_method = config['etl']['train_test_split_method']
     random_state = config['etl']['random_state']
     test_size = config['etl']['test_size']
-    LENGTH_OF_SECTION = config['etl']['LENGTH_OF_SECTION']
-    SR = config['etl']['SR']
-    FRAME_SIZE = config['etl']['FRAME_SIZE']
-    HOP_SIZE = config['etl']['HOP_SIZE']
-    aug_1_YN = config['etl']['aug_1_YN']
+    length_of_section = config['etl']['length_of_section']
+    sr = config['etl']['sr']
+    frame_size = config['etl']['frame_size']
+    hop_size = config['etl']['hop_size']
+    aug_1_yn = config['etl']['aug_1_yn']
     aug_1_addnoise = config['etl']['aug_1_addnoise']
     aug_1_timeshift = config['etl']['aug_1_timeshift']
     aug_1_pitchfactor = config['etl']['aug_1_pitchfactor']
     aug_1_speedfactor = config['etl']['aug_1_speedfactor']
-    aug_2_YN = config['etl']['aug_2_YN']
+    aug_2_yn = config['etl']['aug_2_yn']
     aug_2_addnoise = config['etl']['aug_2_addnoise']
     aug_2_timeshift = config['etl']['aug_2_timeshift']
     aug_2_pitchfactor = config['etl']['aug_2_pitchfactor']
     aug_2_speedfactor = config['etl']['aug_2_speedfactor']
-    aug_3_YN = config['etl']['aug_3_YN']
+    aug_3_yn = config['etl']['aug_3_yn']
     aug_3_addnoise = config['etl']['aug_3_addnoise']
     aug_3_timeshift = config['etl']['aug_3_timeshift']
     aug_3_pitchfactor = config['etl']['aug_3_pitchfactor']
     aug_3_speedfactor = config['etl']['aug_3_speedfactor']
-    aug_4_YN = config['etl']['aug_4_YN']
+    aug_4_yn = config['etl']['aug_4_yn']
     aug_4_addnoise = config['etl']['aug_4_addnoise']
     aug_4_timeshift = config['etl']['aug_4_timeshift']
     aug_4_pitchfactor = config['etl']['aug_4_pitchfactor']
@@ -75,12 +83,12 @@ def etl(config_file):
     train_tp = pd.read_csv(raw_data_file)
     #if we are in development mode, shorten the dataframe
     #so this doesn't take a million years
-    if dev_mode == True:
+    if dev_mode:
         train_tp = train_tp[1:100]
     #there is also a csv file that lists all the files we need to test.
     #load into a pandas dataframe
     test_files = pd.read_csv(test_files_list)
-    if dev_mode == True:
+    if dev_mode:
         test_files = test_files[1:100]
     ##################
     # Transform and Augment Training Data
@@ -101,13 +109,14 @@ def etl(config_file):
             reprocess_audio=False,
             input=train_tp,
             label_input_column_name='species_id',
-            filename_column_name='recording_id',
+            #filename_column_name='recording_id',
             output_lsr_keys=['labels', 'spectrograms', 'row_ids'],
             audio_file_path=training_files_path,
             addnoise=0,
             timeshift=0,
             pitchfactor=0,
-            speedfactor=0):
+            speedfactor=0
+            ):
         #create a dictionary of empty lists
         empty_lists = [[], [], []]
         outputs = dict(zip(output_lsr_keys, empty_lists))
@@ -129,10 +138,10 @@ def etl(config_file):
                         end=section_end,
                         filename=section_contained_in_filename,
                         path=training_files_path,
-                        sr=SR,
-                        length=LENGTH_OF_SECTION,
-                        frame_size=FRAME_SIZE,
-                        hop_size=HOP_SIZE,
+                        sr=sr,
+                        length=length_of_section,
+                        frame_size=frame_size,
+                        hop_size=hop_size,
                         mode='Train',
                         test_clip_num=0,
                         addnoise=0,
@@ -142,23 +151,23 @@ def etl(config_file):
                 #add row ids to list
                 outputs[output_lsr_keys[2]].append(row_num)
             #save the resulting lists to picklefiles
-            with open(str(processed_path)+'\\'+output_lsr_keys[0]+'.pickle', 'wb') as f:
-                pickle.dump(outputs[output_lsr_keys[0]], f, pickle.HIGHEST_PROTOCOL)
-            with open(str(processed_path)+'\\'+output_lsr_keys[1]+'.pickle', 'wb') as f:
-                pickle.dump(outputs[output_lsr_keys[1]], f, pickle.HIGHEST_PROTOCOL)
-            with open(str(processed_path)+'\\'+output_lsr_keys[2]+'.pickle', 'wb') as f:
-                pickle.dump(outputs[output_lsr_keys[2]], f, pickle.HIGHEST_PROTOCOL)
+            with open(str(processed_path)+'\\'+output_lsr_keys[0]+'.pickle', 'wb') as pickle_file:
+                pickle.dump(outputs[output_lsr_keys[0]], pickle_file, pickle.HIGHEST_PROTOCOL)
+            with open(str(processed_path)+'\\'+output_lsr_keys[1]+'.pickle', 'wb') as pickle_file:
+                pickle.dump(outputs[output_lsr_keys[1]], pickle_file, pickle.HIGHEST_PROTOCOL)
+            with open(str(processed_path)+'\\'+output_lsr_keys[2]+'.pickle', 'wb') as pickle_file:
+                pickle.dump(outputs[output_lsr_keys[2]], pickle_file, pickle.HIGHEST_PROTOCOL)
             return outputs[output_lsr_keys[0]], outputs[output_lsr_keys[1]],\
                 outputs[output_lsr_keys[2]]
 
         if reprocess_audio == False:
             #open up the existing pickle files and load the lists into variables
-            with open(str(processed_path)+'\\'+output_lsr_keys[0]+'.pickle', 'rb') as f:
-                outputs[output_lsr_keys[0]] = pickle.load(f)
-            with open(str(processed_path)+'\\'+output_lsr_keys[1]+'.pickle', 'rb') as f:
-                outputs[output_lsr_keys[1]] = pickle.load(f)
-            with open(str(processed_path)+'\\'+output_lsr_keys[2]+'.pickle', 'rb') as f:
-                outputs[output_lsr_keys[2]] = pickle.load(f)
+            with open(str(processed_path)+'\\'+output_lsr_keys[0]+'.pickle', 'rb') as pickle_file:
+                outputs[output_lsr_keys[0]] = pickle.load(pickle_file)
+            with open(str(processed_path)+'\\'+output_lsr_keys[1]+'.pickle', 'rb') as pickle_file:
+                outputs[output_lsr_keys[1]] = pickle.load(pickle_file)
+            with open(str(processed_path)+'\\'+output_lsr_keys[2]+'.pickle', 'rb') as pickle_file:
+                outputs[output_lsr_keys[2]] = pickle.load(pickle_file)
             return outputs[output_lsr_keys[0]], outputs[output_lsr_keys[1]],\
                 outputs[output_lsr_keys[2]]
 
@@ -167,28 +176,28 @@ def etl(config_file):
         reprocess_audio=reprocess_audio,
         output_lsr_keys=['labels', 'spectrograms', 'row_ids'])
     #if we want to do any augmentation, run it for each of the 4 optional augmentations as well
-    if aug_1_YN:
+    if aug_1_yn:
         labels_aug1, spectrograms_aug1, row_ids_aug1 = process_a_set_of_training_data(
             reprocess_audio=reprocess_audio,
             output_lsr_keys=['labels_aug1', 'spectrograms_aug1', 'row_ids_aug1'],
             addnoise=aug_1_addnoise, timeshift=aug_1_timeshift,
             pitchfactor=aug_1_pitchfactor, speedfactor=aug_1_speedfactor)
 
-    if aug_2_YN:
+    if aug_2_yn:
         labels_aug2, spectrograms_aug2, row_ids_aug2 = process_a_set_of_training_data(
             reprocess_audio=reprocess_audio,
             output_lsr_keys=['labels_aug2', 'spectrograms_aug2', 'row_ids_aug2'],
             addnoise=aug_2_addnoise, timeshift=aug_2_timeshift,
             pitchfactor=aug_2_pitchfactor, speedfactor=aug_2_speedfactor)
 
-    if aug_3_YN:
+    if aug_3_yn:
         labels_aug3, spectrograms_aug3, row_ids_aug3 = process_a_set_of_training_data(
             reprocess_audio=reprocess_audio,
             output_lsr_keys=['labels_aug3', 'spectrograms_aug3', 'row_ids_aug3'],
             addnoise=aug_3_addnoise, timeshift=aug_3_timeshift,
             pitchfactor=aug_3_pitchfactor, speedfactor=aug_3_speedfactor)
 
-    if aug_4_YN:
+    if aug_4_yn:
         labels_aug4, spectrograms_aug4, row_ids_aug4 = process_a_set_of_training_data(
             reprocess_audio=reprocess_audio,
             output_lsr_keys=['labels_aug4', 'spectrograms_aug4', 'row_ids_aug4'],
@@ -196,23 +205,47 @@ def etl(config_file):
             pitchfactor=aug_4_pitchfactor, speedfactor=aug_4_speedfactor)
 
     ##################
+    # train test split & Export
+    ##################
+    #logger.info(f"train: {train.shape}")
+
+    if train_test_split_method == 'Simple':
+        #this just creates a train test split on the unaugmented data.
+        #The augmented data is not used.
+        train_rowids, test_rowids = custom_train_test_splitter(
+            method='Simple', random_state=random_state, test_size=test_size,
+            row_ids_list=row_ids)
+
+        with open(str(processed_path)+'\\'+'train_rowids.pickle', 'wb') as pickle_file:
+            pickle.dump(train_rowids, pickle_file, pickle.HIGHEST_PROTOCOL)
+
+        with open(str(processed_path)+'\\'+'test_rowids.pickle', 'wb') as pickle_file:
+            pickle.dump(test_rowids, pickle_file, pickle.HIGHEST_PROTOCOL)
+
+
+    #delete your test objects
+    del labels
+    del spectrograms
+    del row_ids
+    
+    ##################
     # Tranform Test Data (i.e. data used for evaluation in competition)
     ##################
 
-    test_segments = get_test_segments(overlap=test_segment_overlap, sr=SR)
+    test_segments = get_test_segments(overlap=test_segment_overlap, sr=sr)
 
 
-    if reprocess_audio == False:
+    if reprocess_audio is False:
     #     with open('labels_test.pickle', 'rb') as f:
     #         labels = pickle.load(f)
-        with open(str(processed_path)+'\\'+'spectrograms_test.pickle', 'rb') as f:
-            spectrograms_test = pickle.load(f)
-        with open(str(processed_path)+'\\'+'row_ids_test.pickle', 'rb') as f:
-            row_ids_test = pickle.load(f)
-        with open(str(processed_path)+'\\'+'clip_segments_test.pickle', 'rb') as f:
-            clip_segments_test = pickle.load(f)
-        with open(str(processed_path)+'\\'+'clips_test.pickle', 'rb') as f:
-            clips_test = pickle.load(f)
+        with open(str(processed_path)+'\\'+'spectrograms_test.pickle', 'rb') as pickle_file:
+            spectrograms_test = pickle.load(pickle_file)
+        with open(str(processed_path)+'\\'+'row_ids_test.pickle', 'rb') as pickle_file:
+            row_ids_test = pickle.load(pickle_file)
+        with open(str(processed_path)+'\\'+'clip_segments_test.pickle', 'rb') as pickle_file:
+            clip_segments_test = pickle.load(pickle_file)
+        with open(str(processed_path)+'\\'+'clips_test.pickle', 'rb') as pickle_file:
+            clips_test = pickle.load(pickle_file)
 
     else:
         row_ids_test = []
@@ -228,44 +261,28 @@ def etl(config_file):
                 #create a spectrogram and add to the list
                 spectrograms_test.append(get_mel_spectrogram(
                     row_num=i, start=0, end=0, filename=test_file_name,
-                    path=test_files_path, sr=SR, length=LENGTH_OF_SECTION,
-                    frame_size=FRAME_SIZE, hop_size=HOP_SIZE, mode="Test",
+                    path=test_files_path, sr=sr, length=length_of_section,
+                    frame_size=frame_size, hop_size=hop_size, mode="Test",
                     test_clip_num=j, addnoise=0, timeshift=0, pitchfactor=0,
                     speedfactor=0, test_segments=test_segments))
-                row_ids_test.append(i) 
-        with open(str(processed_path)+'\\'+'spectrograms_test.pickle', 'wb') as f:
-            pickle.dump(spectrograms_test, f, pickle.HIGHEST_PROTOCOL)
+                row_ids_test.append(i)
+        with open(str(processed_path)+'\\'+'spectrograms_test.pickle', 'wb') as pickle_file:
+            pickle.dump(spectrograms_test, pickle_file, pickle.HIGHEST_PROTOCOL)
 
-        with open(str(processed_path)+'\\'+'row_ids_test.pickle', 'wb') as f:
-            pickle.dump(row_ids_test, f, pickle.HIGHEST_PROTOCOL)
+        with open(str(processed_path)+'\\'+'row_ids_test.pickle', 'wb') as pickle_file:
+            pickle.dump(row_ids_test, pickle_file, pickle.HIGHEST_PROTOCOL)
 
-        with open(str(processed_path)+'\\'+'clip_segments_test.pickle', 'wb') as f:
-            pickle.dump(clip_segments_test, f, pickle.HIGHEST_PROTOCOL)
+        with open(str(processed_path)+'\\'+'clip_segments_test.pickle', 'wb') as pickle_file:
+            pickle.dump(clip_segments_test, pickle_file, pickle.HIGHEST_PROTOCOL)
 
-        with open(str(processed_path)+'\\'+'clips_test.pickle', 'wb') as f:
-            pickle.dump(clips_test, f, pickle.HIGHEST_PROTOCOL)
+        with open(str(processed_path)+'\\'+'clips_test.pickle', 'wb') as pickle_file:
+            pickle.dump(clips_test, pickle_file, pickle.HIGHEST_PROTOCOL)
 
     logger.info("End data transformation")
 
 
 
-    ##################
-    # train test split & Export
-    ##################
-    #logger.info(f"train: {train.shape}")
 
-    if train_test_split_method == 'Simple':
-        #this just creates a train test split on the unaugmented data.
-        #The augmented data is not used.
-        train_rowids, test_rowids = custom_train_test_splitter(
-            method='Simple', random_state=random_state, test_size=test_size,
-            row_ids_list=row_ids)
-
-        with open(str(processed_path)+'\\'+'train_rowids.pickle', 'wb') as f:
-            pickle.dump(train_rowids, f, pickle.HIGHEST_PROTOCOL)
-
-        with open(str(processed_path)+'\\'+'test_rowids.pickle', 'wb') as f:
-            pickle.dump(test_rowids, f, pickle.HIGHEST_PROTOCOL)
 
 ##################
 # Define Helper Functions used in Transformation
@@ -311,7 +328,7 @@ def get_flac_section(row_num, start, end, filename, path, sr, length,
                      addnoise=0, timeshift=0, pitchfactor=0, speedfactor=0):
     #this function is called by the get_mel_spectrogram function while processing training data
     #find the midpoint of the training section as defined in the data provided,
-    #and then re-assign the start and end variables to create a section of length 
+    #and then re-assign the start and end variables to create a section of length
     #'length', starting length/2 before the midpoint
     midpoint = (start + end) / 2
 
@@ -324,7 +341,7 @@ def get_flac_section(row_num, start, end, filename, path, sr, length,
     if start < 0:
         start = 0
         end = length
-    #if this ends up ending after 60 seconds, start at 60-LENGTH_OF_SECTION seconds
+    #if this ends up ending after 60 seconds, start at 60-length_of_section seconds
     if end > 60:
         start = 60 - length
         end = 60
@@ -370,7 +387,7 @@ def get_mel_spectrogram(row_num, start, end, filename, path, sr, length,
                                           sr=sr, test_segments=test_segments)
 
     spectrogram = librosa.feature.melspectrogram(y=y, sr=int(sr),
-                                                 n_fft=int(frame_size), 
+                                                 n_fft=int(frame_size),
                                                  hop_length=int(hop_size))
     spectrogram = librosa.power_to_db(spectrogram, ref=np.max) # Converting to decibals
 
@@ -388,7 +405,7 @@ def get_test_segments(overlap, sr):
     #Optionally, these segments can overlap.
     test_segments = pd.DataFrame(columns=['start', 'end'])
 
-    if overlap == True:
+    if overlap:
         test_segments['start'] = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30,
                                   33, 36, 39, 42, 45, 48, 51, 54]
         test_segments['end'] = [6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36,

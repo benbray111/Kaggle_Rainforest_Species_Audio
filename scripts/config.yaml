@@ -10,28 +10,28 @@ etl:
   random_state: 42
   test_size: 0.2
   #audio specific settings
-  SR: 48000
-  FRAME_SIZE: 2048
-  HOP_SIZE: 2048
-  WINDOW_SIZE: 2048
-  LENGTH_OF_SECTION: 6
+  sr: 48000
+  frame_size: 2048
+  hop_size: 2048
+  window_size: 2048
+  length_of_section: 6
   #settings used for up to 4 optional data augmentations
-  aug_1_YN: True
+  aug_1_yn: True
   aug_1_addnoise: .01
   aug_1_timeshift: 0 
   aug_1_pitchfactor: 0 
   aug_1_speedfactor: 0
-  aug_2_YN: True
+  aug_2_yn: True
   aug_2_addnoise: .001
   aug_2_timeshift: .5 
   aug_2_pitchfactor: 0 
   aug_2_speedfactor: 0
-  aug_3_YN: True 
+  aug_3_yn: True 
   aug_3_addnoise: .001 
   aug_3_timeshift: 0
   aug_3_pitchfactor: 1
   aug_3_speedfactor: 0 
-  aug_4_YN: True
+  aug_4_yn: True
   aug_4_addnoise: .001
   aug_4_timeshift: 0
   aug_4_pitchfactor: 0
