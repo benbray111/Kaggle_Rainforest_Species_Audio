@@ -19,7 +19,10 @@ from utility import parse_config, set_logger
 @click.argument("config_file", type=str, default="config.yaml")
 
 def etl(config_file):
+    """Pre-process data.
 
+    Convert both train and test data from audio to spectrograms based on config.yaml
+    """
 
     ##################
     # configure logger
@@ -29,7 +32,7 @@ def etl(config_file):
     ##################
     # Load config from config file
     ##################
-    logger.info(f"Load config from {config_file}")
+    logger.info("Load config from %s ", config_file)
     config = parse_config(config_file)
     reprocess_audio = config['etl']['reprocess_audio']
     dev_mode = config['etl']['dev_mode']
@@ -69,7 +72,7 @@ def etl(config_file):
     aug_4_pitchfactor = config['etl']['aug_4_pitchfactor']
     aug_4_speedfactor = config['etl']['aug_4_speedfactor']
     test_segment_overlap = config['etl']['test_segment_overlap']
-    logger.info(f"config: {config['etl']}")
+    logger.info("config: %s ", config['etl'])
     ##################
     # Data transformation
     ##################
@@ -110,13 +113,15 @@ def etl(config_file):
             input=train_tp,
             label_input_column_name='species_id',
             #filename_column_name='recording_id',
-            output_lsr_keys=['labels', 'spectrograms', 'row_ids'],
+            output_lsr_keys=None,
             audio_file_path=training_files_path,
             addnoise=0,
             timeshift=0,
             pitchfactor=0,
             speedfactor=0
             ):
+        
+        output_lsr_keys = output_lsr_keys or ['labels', 'spectrograms', 'row_ids']
         #create a dictionary of empty lists
         empty_lists = [[], [], []]
         outputs = dict(zip(output_lsr_keys, empty_lists))
@@ -227,7 +232,7 @@ def etl(config_file):
     del labels
     del spectrograms
     del row_ids
-    
+
     ##################
     # Tranform Test Data (i.e. data used for evaluation in competition)
     ##################
@@ -326,7 +331,8 @@ the dataframe.
 
 def get_flac_section(row_num, start, end, filename, path, sr, length,
                      addnoise=0, timeshift=0, pitchfactor=0, speedfactor=0):
-    #this function is called by the get_mel_spectrogram function while processing training data
+    """Get relevant section from flac file while processing training data
+    """
     #find the midpoint of the training section as defined in the data provided,
     #and then re-assign the start and end variables to create a section of length
     #'length', starting length/2 before the midpoint
@@ -374,6 +380,8 @@ def get_mel_spectrogram(row_num, start, end, filename, path, sr, length,
                         frame_size, hop_size, mode='Train', test_clip_num=0,
                         addnoise=0, timeshift=0, pitchfactor=0, speedfactor=0,
                         test_segments=[]):
+    """Convert audio data to mel spectrogram
+    """
 
     if mode == 'Train':
         y, sr = get_flac_section(row_num=row_num, start=start, end=end,
@@ -399,10 +407,13 @@ def get_mel_spectrogram(row_num, start, end, filename, path, sr, length,
     return spectrogram
 
 def get_test_segments(overlap, sr):
-    #The test data is in 60 second files. We need to split them up into 6
-    #second segments that match the train data.
-    #define how your test data should be split up.
-    #Optionally, these segments can overlap.
+    """Split up test data files
+
+    The test data is in 60 second files. We need to split them up into 6
+    second segments that match the train data.
+    define how your test data should be split up.
+    Optionally, these segments can overlap.
+    """
     test_segments = pd.DataFrame(columns=['start', 'end'])
 
     if overlap:
@@ -419,7 +430,9 @@ def get_test_segments(overlap, sr):
     return test_segments
 
 def get_flac_section_for_test(row_num, filename, which_segment, path, sr, test_segments):
-    #get the file in question
+    """Get relevent section of flac file used to be used for testing
+
+    """
     flacdata, samplerate = librosa.load(str(path)+'//'+filename+'.flac', sr)
 
     start = test_segments.iloc[which_segment]['start']
@@ -430,10 +443,16 @@ def get_flac_section_for_test(row_num, filename, which_segment, path, sr, test_s
 
 
 def custom_train_test_splitter(method, random_state, test_size, row_ids_list):
+    """Split up training data into train/test sets.
+
+    This allows for both simple and complex modes. Complex modes are meant for
+    spliting data while accounting for data augmentation that has occured.
+    """
+
     if method == 'Simple':
         train, test = train_test_split(row_ids_list, test_size=test_size, random_state=random_state)
     return train, test
 
 
 if __name__ == "__main__":
-    etl()
+    etl(None)
